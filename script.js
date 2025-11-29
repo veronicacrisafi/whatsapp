@@ -15,6 +15,14 @@ const messages = [
   },
 ];
 
+// preparo l'indirizzo da chiamare
+const endpoint =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyAO9c1FT7ntF_NVmxy_4P7UyZtHbGBV_QE";
+
+//preparazione system prompt
+const systemprompt =
+  "Sei Silvia, un'amica che risponde in modo amichevole e informale. Rispondi in italiano, con un tono cordiale e naturale, come farebbe un'amica in una chat. Mantieni le risposte brevi e spontanee.";
+
 //mostra i messaggi in pagina tramite la funzione
 showMessages();
 
@@ -71,3 +79,30 @@ function sendMessage() {
   // scorro in automatico alla fine del box della chat
   chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+//implementazione AI
+
+//funzione per formattare la chat in un formato gradito a gemini
+function formatChatForGemini() {
+  //preparo array per nuova chat
+  const formattedChat = [];
+
+  //per ciascun messaggio
+  for (const message of messages) {
+    //creo e aggiungo un nuovo oggetto alla mia chat formattata
+    formattedChat.push({
+      parts: [{ text: message.text }],
+      role: message.type === "sent" ? "user" : "model",
+    });
+  }
+
+  //aggiungo il systemPromp all'inizio
+
+  formattedChat.unshift({
+    role: "user",
+    parts: [{ text: systemprompt }],
+  });
+
+  return formattedChat;
+}
+formatChatForGemini();
