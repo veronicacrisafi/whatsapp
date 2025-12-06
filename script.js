@@ -1,9 +1,10 @@
 const input = document.querySelector("input");
 const button = document.querySelector("button");
 const chatBox = document.querySelector(".chat-box");
+const contactStatus = document.querySelector(".contact-status");
 
 const messages = [
-  {
+  /*  {
     type: "sent",
     text: "Ciao, come va?",
     time: "26/11/2025 21:04:00",
@@ -12,7 +13,7 @@ const messages = [
     type: "received",
     text: "tutto bene grazie e tu?",
     time: "26/11/2025 21:08:00",
-  },
+  }, */
 ];
 
 // preparo l'indirizzo da chiamare
@@ -48,6 +49,10 @@ function showMessages() {
             </div>
         </div>`;
   }
+  //riporta il cursore sull'input post invio
+  input.focus();
+  // scorro in automatico alla fine del box della chat
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 // funzione per aggiungere i messaggi
@@ -74,10 +79,9 @@ function sendMessage() {
   addMessage("sent", insertedText);
   //svuoto l'input dopo l'invio
   input.value = "";
-  //riporta il cursore sull'input post invio
-  input.focus();
-  // scorro in automatico alla fine del box della chat
-  chatBox.scrollTop = chatBox.scrollHeight;
+
+  //chiedo a gemini di generare una risposta
+  getAnswerFromGemini();
 }
 
 //implementazione AI
@@ -106,3 +110,31 @@ function formatChatForGemini() {
   return formattedChat;
 }
 formatChatForGemini();
+
+//funzione per chiedere a gemini di geerare una risposta
+
+async function getAnswerFromGemini() {
+  const chatForGemini = formatChatForGemini();
+
+  //inseriamo sta scrivendo...
+  contactStatus.innerText = "Sta scrivendo...";
+
+  //effetuiamo la chiamata all'API
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-type": "application/json" },
+    body: JSON.stringify({ contents: chatForGemini }),
+  });
+  //converto la risposta in json
+  const data = await response.json();
+
+  //recupero il testo della risposta
+  const answer = data.candidates[0].content.parts[0].text;
+
+  //rimetto online
+
+  contactStatus.innerText = "Online 🟢";
+
+  //aggiungo la risposta nella UI
+  addMessage("received", answer);
+}
